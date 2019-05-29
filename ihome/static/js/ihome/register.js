@@ -47,7 +47,7 @@ function sendSMSCode() {
     }
 
     $.get("/api/v1.0/sms_codes/"+mobile,params,function(resp){
-        if (resp.error=="0"){
+        if (resp.errno=="0"){
             var num =60
 
             var time = setInterval(function(){
@@ -69,30 +69,30 @@ function sendSMSCode() {
         }
 
     })
-    $.get("/api/smscode", {mobile:mobile, code:imageCode, codeId:imageCodeId}, 
-        function(data){
-            if (0 != data.errno) {
-                $("#image-code-err span").html(data.errmsg); 
-                $("#image-code-err").show();
-                if (2 == data.errno || 3 == data.errno) {
-                    generateImageCode();
-                }
-                $(".phonecode-a").attr("onclick", "sendSMSCode();");
-            }   
-            else {
-                var $time = $(".phonecode-a");
-                var duration = 60;
-                var intervalid = setInterval(function(){
-                    $time.html(duration + "秒"); 
-                    if(duration === 1){
-                        clearInterval(intervalid);
-                        $time.html('获取验证码'); 
-                        $(".phonecode-a").attr("onclick", "sendSMSCode();");
-                    }
-                    duration = duration - 1;
-                }, 1000, 60); 
-            }
-    }, 'json'); 
+    // $.get("/api/smscode", {mobile:mobile, code:imageCode, codeId:imageCodeId},
+    //     function(data){
+    //         if (0 != data.errno) {
+    //             $("#image-code-err span").html(data.errmsg);
+    //             $("#image-code-err").show();
+    //             if (2 == data.errno || 3 == data.errno) {
+    //                 generateImageCode();
+    //             }
+    //             $(".phonecode-a").attr("onclick", "sendSMSCode();");
+    //         }
+    //         else {
+    //             var $time = $(".phonecode-a");
+    //             var duration = 60;
+    //             var intervalid = setInterval(function(){
+    //                 $time.html(duration + "秒");
+    //                 if(duration === 1){
+    //                     clearInterval(intervalid);
+    //                     $time.html('获取验证码');
+    //                     $(".phonecode-a").attr("onclick", "sendSMSCode();");
+    //                 }
+    //                 duration = duration - 1;
+    //             }, 1000, 60);
+    //         }
+    // }, 'json');
 }
 
 $(document).ready(function() {

@@ -18,8 +18,8 @@ def image_code_id(image_code_id):
     try:
         redis_store.setex("image_code_%s"%image_code_id,IMAGE_CODE_REDIS_EXPIRES,text)
     except Exception as e:
-        current_app.logger.error(e)
-        return jsonify(error=RET.DBERR,errmsg="save image code faill")
+        current_app.logger.errno(e)
+        return jsonify(errno=RET.DBERR,errmsg="save image code faill")
     resp = make_response(image)
     resp.headers["Content-Type"] = "image/jpg"
     return resp
@@ -31,47 +31,47 @@ def mobile_code_Id(mobile):
     image_code  = request.args.get('imageCode')
 
     if not all([image_code_id,image_code]):
-        return jsonify(error=RET.PARAMERR,errmsg="missing data")
+        return jsonify(errno=RET.PARAMERR,errmsg="missing data")
 
     #获取图片验证码
     try:
         redis_image_code=redis_store.get('image_code_%s'%image_code_id)
     except Exception as e:
-        current_app.logger.error(e)
-        return jsonify(error=RET.DBERR,errmsg="redis abnormal")
+        current_app.logger.errno(e)
+        return jsonify(errno=RET.DBERR,errmsg="redis abnormal")
 
     if not redis_image_code:
-        return jsonify(error=RET.NODATA,errmsg="captcha Invalid")
+        return jsonify(errno=RET.NODATA,errmsg="captcha Invalid")
 
     #判断图片验证码
     redis_image_code = redis_image_code.lower()
     image_code = image_code.lower()
     if redis_image_code != image_code:
-        return jsonify(error=RET.REQERR, errmsg="captcha error")
+        return jsonify(errno=RET.REQERR, errmsg="captcha errno")
 
     #删除图片验证码
     try:
         redis_store.delete('image_code_%s'%image_code_id)
     except Exception as e:
-        current_app.logger.error(e)
+        current_app.logger.errno(e)
 
     #判断是否在60秒内
     try:
         mobile_exist=redis_store.get("mobile_code_time_%s"%mobile)
     except  Exception as e :
-        current_app.logger.error(e)
+        current_app.logger.errno(e)
     else:
         if mobile_exist:
-            return jsonify(error=RET.REQERR,errmsg="Too many queries ")
+            return jsonify(errno=RET.REQERR,errmsg="Too many queries ")
 
     #查询手机号是否存在
     try:
         user = User.query.filter_by(mobile=mobile).first()
     except Exception as e:
-        current_app.logger.error(e)
+        current_app.logger.errno(e)
     else:
         if not user is None:
-            return jsonify(error=RET.NODATA,errmsg="user not data ")
+            return jsonify(errno=RET.NODATA,errmsg="user not data ")
 
     mobile_code = "%06d" % random.randint(0, 999999)
 
@@ -81,7 +81,7 @@ def mobile_code_Id(mobile):
 
         print(mobile_code)
     except Exception as e:
-        return jsonify(error=RET.REQERR, errmsg="db error")
+        return jsonify(errno=RET.REQERR, errmsg="db errno")
 
     #判断是否发送
     try:
@@ -89,18 +89,18 @@ def mobile_code_Id(mobile):
         sms.sendTemplatesms(mobile,[mobile_code,MOBILE_CODE_REDIS_EXPIRES/60],1)
         redis_store.setex("mobile_code_time_%s"%mobile,MOBILE_REDIS_EXPIRES,1)
     except  Exception as e :
-        current_app.logger.error(e)
-        return jsonify(error=RET.THIRDERR, errmsg="sms send fail")
+        current_app.logger.errno(e)
+        return jsonify(errno=RET.THIRDERR, errmsg="sms send fail")
 
     # result=send_sms.delay(mobile,[mobile_code,MOBILE_CODE_REDIS_EXPIRES/60],1)
     # #打印celery成功时返回的的值(获取redis成功的值)
     # print(result.get())
     # except  Exception as e :
-    #     return jsonify(error=RET.THIRDERR, errmsg="sms send fail")
+    #     return jsonify(errno=RET.THIRDERR, errmsg="sms send fail")
 
     #判断是否发送成功
 
-    return jsonify(error=RET.OK, errmsg="sms send ok")
+    return jsonify(errno=RET.OK, errmsg="sms send ok")
 
 
 

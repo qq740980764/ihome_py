@@ -40,7 +40,7 @@ def seach_name():
     #查询城区数量
     try:
         area = Area.query.filter()
-
+        print("area的值是",area)
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR,errmsg="mysql error")
@@ -133,7 +133,7 @@ def release_new_houseing_sources():
                  max_days=max_days,
                  )
     facility = accept_json.get("facility")
-
+    print("facility",facility)
     if facility:
         try:
             facility=Facility.query.filter(Facility.id.in_(facility)).all()

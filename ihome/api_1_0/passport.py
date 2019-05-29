@@ -29,11 +29,11 @@ def register():
 
     #判断数据完整性
     if not all([mobile,mobile_code,password,password2]):
-        return jsonify(erron=RET.PARAMERR,errmsg="missing data")
+        return jsonify(errno=RET.PARAMERR,errmsg="missing data")
 
     #判断手机号格式
     if not re.match(r'1[345678]\d{9}',mobile):
-        return jsonify(erron=RET.DATAERR,errmsg="mobile Incorrect data")
+        return jsonify(errno=RET.DATAERR,errmsg="mobile Incorrect data")
 
     #判断密码
     if password != password2:
@@ -44,13 +44,13 @@ def register():
         redis_mobile_code = redis_store.get("mobile_code_%s"%mobile)
     except Exception as e:
         current_app.logger.error(e)
-        return jsonify(erron=RET.DBERR,errmsg="rediss error")
+        return jsonify(errno=RET.DBERR,errmsg="rediss error")
 
     if not mobile_code:
-        return jsonify(erron=RET.DATAERR,errmsg="missing mobile_code")
+        return jsonify(errno=RET.DATAERR,errmsg="missing mobile_code")
 
     if redis_mobile_code != mobile_code:
-        return jsonify(erron=RET.DATAERR,errmsg=" mobile_code error")
+        return jsonify(errno=RET.DATAERR,errmsg=" mobile_code error")
 
     #判断手机是否存在,设置密码
     try:
@@ -61,16 +61,16 @@ def register():
     except IntegrityError as e:
         db.session.rollback()
         current_app.logger.error(e)
-        return jsonify(erron=RET.DATAEXIST,errmsg=" data exist ")
+        return jsonify(errno=RET.DATAEXIST,errmsg=" data exist ")
     except Exception as e :
         current_app.logger.error(e)
-        return jsonify(erron=RET.DBERR, errmsg="mysql error")
+        return jsonify(errno=RET.DBERR, errmsg="mysql error")
 
     #保存session数据
     session["name"] = mobile
     session["mobile"] = mobile
     session["user_id"] = user.id
-    return jsonify(erron=RET.OK, errmsg="register ok ")
+    return jsonify(errno=RET.OK, errmsg="register ok ")
 
 
 #

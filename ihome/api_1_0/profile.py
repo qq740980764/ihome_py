@@ -28,7 +28,7 @@ def portrait():
     # try:
     avatar_url = storage(file_data)
     # except Exception as e:
-    #     current_app.logger.error(e)
+    #     current_app.logger.errno(e)
     #     return jsonify(errno=RET.DATAERR,errmsg="文件上传失败")
 
     #将数据保存到数据库中
@@ -37,7 +37,7 @@ def portrait():
         db.session.commit()
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(e)
+        current_app.logger.errno(e)
         return jsonify(errno=RET.DBERR, errmsg="mysql err")
 
     avatar_url =constants.QINIU_HTTP+avatar_url
@@ -61,13 +61,13 @@ def get_user_profile():
     try:
         user = User.query.get(user_id)
     except Exception as e:
-        current_app.logger.error(e)
-        return jsonify(errno=RET.DBERR, errmsg="mysql error")
+        current_app.logger.errno(e)
+        return jsonify(errno=RET.DBERR, errmsg="mysql errno")
 
     if  not user:
         return jsonify(errno=RET.NODATA, errmsg="user missing")
 
-    return jsonify(errno=RET.OK, errmsg="OK",data =user.to_dict())
+    return jsonify(errno=RET.OK, errmsg="OK",data =user.auth_to_dict())
 
 
 
@@ -90,9 +90,9 @@ def get_username_profile():
         user = User.query.filter_by(id=user_id).update({"name":name})
         db.session.commit()
     except Exception as e:
-        current_app.logger.error(e)
+        current_app.logger.errno(e)
         db.session.commit()
-        return jsonify(errno=RET.DBERR, errmsg="mysql error")
+        return jsonify(errno=RET.DBERR, errmsg="mysql errno")
 
     return jsonify(errno=RET.OK, errmsg="OK")
 
@@ -110,7 +110,7 @@ def check_read_name_and_id_card():
     try:
         user = User.query.get(user_id)
     except Exception as e:
-        current_app.logger.error(e)
+        current_app.logger.errno(e)
         return jsonify(errno=RET.DATAERR, errmsg="data missing")
     if not user:
         return jsonify(errno=RET.NODATA, errmsg="please write read_name/user_card")
@@ -136,9 +136,9 @@ def auth_read_name_and_id_card():
         user = User.query.filter_by(id=user_id,real_name=None,id_card=None).update({"real_name":real_name,"id_card":id_card})
         db.session.commit()
     except Exception as e:
-        current_app.logger.error(e)
+        current_app.logger.errno(e)
         db.session.rollback()
-        return jsonify(errno=RET.DBERR, errmsg="mysql error")
+        return jsonify(errno=RET.DBERR, errmsg="mysql errno")
     else:
         if user is None:
             return jsonify(errno=RET.DATAERR, errmsg="Insert Only once")
